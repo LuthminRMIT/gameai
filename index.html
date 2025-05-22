@@ -6,7 +6,7 @@
     <style>
       body {
         margin: 0;
-        padding: 20px;
+        padding: 10px;
         background: #1a1a1a;
         display: flex;
         justify-content: center;
@@ -16,34 +16,45 @@
         font-family: "Courier New", monospace;
         image-rendering: pixelated;
         overflow: hidden; /* Prevent scrolling */
+        box-sizing: border-box;
       }
 
       #gameContainer {
         background: #2c3e50;
-        padding: 20px;
+        padding: 15px;
         border-radius: 10px;
         box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+        max-width: 95vw;
+        max-height: 95vh;
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
       }
 
       #gameCanvas {
-        border: 4px solid #000;
+        border: 3px solid #000;
         display: block;
         image-rendering: pixelated;
+        max-width: 100%;
+        max-height: 60vh;
+        object-fit: contain;
       }
 
       #ui {
-        margin-top: 10px;
+        margin-top: 8px;
         color: white;
         text-align: center;
+        flex-shrink: 0;
       }
 
       .stats {
         display: flex;
         justify-content: space-around;
-        margin-top: 10px;
-        padding: 10px;
+        margin-top: 8px;
+        padding: 8px;
         background: #1a1a1a;
         border-radius: 5px;
+        font-size: 14px;
       }
 
       #dialogue {
@@ -62,9 +73,9 @@
 
       .game-title {
         text-align: center;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
         color: #ecf0f1;
-        font-size: 28px;
+        font-size: 24px;
         font-weight: bold;
         text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8);
         letter-spacing: 2px;
@@ -78,8 +89,8 @@
           display: flex;
           align-items: center;
           justify-content: center;
-          margin-bottom: 10px;
-          gap: 15px;
+          margin-bottom: 8px;
+          gap: 12px;
         "
       >
         <div class="game-title" style="color: #dc143c; margin: 0">
@@ -87,12 +98,12 @@
         </div>
         <img
           src="https://takara.ai/images/logo-24/TakaraAi.svg"
-          width="60"
+          width="50"
           alt="Takara.ai Logo"
           style="filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5))"
         />
       </div>
-      <canvas id="gameCanvas" width="640" height="480"></canvas>
+      <canvas id="gameCanvas" width="560" height="420"></canvas>
       <div id="ui">
         <div class="stats">
           <div>🤖 AI: <span id="aiCount">0</span>/∞</div>
@@ -103,28 +114,42 @@
         <div
           id="questDisplay"
           style="
-            margin-top: 10px;
-            padding: 10px;
+            margin-top: 8px;
+            padding: 8px;
             background: rgba(220, 20, 60, 0.1);
             border-radius: 5px;
             border: 1px solid #dc143c;
           "
         >
-          <div style="color: #dc143c; font-weight: bold; margin-bottom: 5px">
+          <div
+            style="
+              color: #dc143c;
+              font-weight: bold;
+              margin-bottom: 4px;
+              font-size: 13px;
+            "
+          >
             Current Quest:
           </div>
           <div
             id="questTitle"
-            style="color: #ecf0f1; font-size: 14px; margin-bottom: 3px"
+            style="color: #ecf0f1; font-size: 13px; margin-bottom: 2px"
           >
             Welcome to Takara.ai
           </div>
-          <div id="questDesc" style="color: #bdc3c7; font-size: 12px">
+          <div id="questDesc" style="color: #bdc3c7; font-size: 11px">
             Find your first AI architecture!
           </div>
         </div>
       </div>
-      <div style="text-align: center; color: #ecf0f1; margin-top: 10px">
+      <div
+        style="
+          text-align: center;
+          color: #ecf0f1;
+          margin-top: 8px;
+          font-size: 13px;
+        "
+      >
         ⌨️ WASD/Arrows to move • ⚡ SPACE to interact • 🔍 Explore Takara.ai
         Research Lab!
       </div>
@@ -3432,4 +3457,3 @@
     </script>
   </body>
 </html>
-
