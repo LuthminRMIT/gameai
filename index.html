@@ -540,6 +540,10 @@
         totalAICollected: 0,
         rareAICollected: 0,
         gameStartTime: Date.now(),
+
+        // Timing
+        lastTime: 0,
+        deltaTime: 0,
       };
 
       // Room generation with deterministic seeding
@@ -2177,23 +2181,24 @@
       }
 
       // Update
-      function update() {
+      function update(deltaTime) {
         const player = game.player;
-        const speed = 0.15;
+        const speed = 4.0; // tiles per second
+        const frameSpeed = speed * (deltaTime / 1000); // convert to per-frame movement
         let dx = 0,
           dy = 0;
 
         if (keys["arrowup"] || keys["w"]) {
-          dy = -speed;
+          dy = -frameSpeed;
           player.facing = "up";
         } else if (keys["arrowdown"] || keys["s"]) {
-          dy = speed;
+          dy = frameSpeed;
           player.facing = "down";
         } else if (keys["arrowleft"] || keys["a"]) {
-          dx = -speed;
+          dx = -frameSpeed;
           player.facing = "left";
         } else if (keys["arrowright"] || keys["d"]) {
-          dx = speed;
+          dx = frameSpeed;
           player.facing = "right";
         }
 
@@ -2298,15 +2303,16 @@
             }
           }
 
-          player.animFrame += 0.2;
+          player.animFrame += 5.0 * (deltaTime / 1000); // 5 animation cycles per second
         }
 
         // Update particles
         game.particles = game.particles.filter((p) => {
-          p.x += p.vx;
-          p.y += p.vy;
-          p.vy += 0.5;
-          p.life--;
+          const frameMultiplier = deltaTime / 16.67; // normalize to 60fps
+          p.x += p.vx * frameMultiplier;
+          p.y += p.vy * frameMultiplier;
+          p.vy += 0.5 * frameMultiplier;
+          p.life -= frameMultiplier;
           return p.life > 0;
         });
       }
@@ -3436,8 +3442,18 @@
       }
 
       // Game loop
-      function gameLoop() {
-        update();
+      function gameLoop(currentTime) {
+        // Calculate delta time
+        if (game.lastTime === 0) {
+          game.lastTime = currentTime;
+        }
+        game.deltaTime = currentTime - game.lastTime;
+        game.lastTime = currentTime;
+
+        // Cap delta time to prevent large jumps (e.g., when tab is inactive)
+        game.deltaTime = Math.min(game.deltaTime, 33.33); // Max 30fps minimum
+
+        update(game.deltaTime);
         render();
         requestAnimationFrame(gameLoop);
       }
