@@ -108,29 +108,46 @@
       const ctx = canvas.getContext("2d");
       ctx.imageSmoothingEnabled = false;
 
-      // Sprite system
+      // Sprite system - corrected for proper sprite sheet layout
       const spriteSheet = {
         image: null,
         loaded: false,
-        tileSize: 32,
+        tileSize: 24, // Most RPG sprite sheets use 24x24 or 32x32
+        
+        // Each character has 4 directions in a row: down, left, right, up
         characters: {
-          player: { row: 0, col: 0 },
-          'Dr. Takara Mono': { row: 1, col: 0 },
-          'Geoffrey Hinton': { row: 2, col: 0 },
-          'Yann LeCun': { row: 3, col: 0 },
-          'Yoshua Bengio': { row: 4, col: 0 },
-          'Andrew Ng': { row: 5, col: 0 },
-          'Fei-Fei Li': { row: 6, col: 0 }
+          player: { row: 0 },           // First row
+          'Dr. Takara Mono': { row: 1 }, // Second row  
+          'Geoffrey Hinton': { row: 2 }, // Third row
+          'Yann LeCun': { row: 3 },     // Fourth row
+          'Yoshua Bengio': { row: 4 },  // Fifth row
+          'Andrew Ng': { row: 5 },      // Sixth row
+          'Fei-Fei Li': { row: 6 }      // Seventh row
         },
+        
+        // Direction order in sprite sheets: down, left, right, up
         directions: { down: 0, left: 1, right: 2, up: 3 }
       };
 
       function loadSpriteSheet() {
         spriteSheet.image = new Image();
         spriteSheet.image.onload = function() {
-          const charactersPerRow = 8;
-          spriteSheet.tileSize = spriteSheet.image.width / (charactersPerRow * 4);
-          console.log(`Sprite sheet loaded! Tile size: ${spriteSheet.tileSize}x${spriteSheet.tileSize}`);
+          // Auto-detect tile size - assume 8 characters across, 4 directions each
+          const imageWidth = spriteSheet.image.width;
+          const imageHeight = spriteSheet.image.height;
+          
+          // Common sprite sheet layouts: 8 characters × 4 directions = 32 sprites wide
+          spriteSheet.tileSize = Math.floor(imageWidth / 32);
+          
+          // If that doesn't work, try other common layouts
+          if (spriteSheet.tileSize < 16) {
+            spriteSheet.tileSize = Math.floor(imageWidth / 16); // 4 characters × 4 directions
+          }
+          if (spriteSheet.tileSize < 16) {
+            spriteSheet.tileSize = Math.floor(imageWidth / 12); // 3 characters × 4 directions
+          }
+          
+          console.log(`Sprite sheet loaded! Image: ${imageWidth}x${imageHeight}, Tile size: ${spriteSheet.tileSize}x${spriteSheet.tileSize}`);
           spriteSheet.loaded = true;
         };
         spriteSheet.image.onerror = function() {
@@ -148,7 +165,8 @@
         const dirCol = spriteSheet.directions[direction];
         if (dirCol === undefined) return false;
 
-        const sourceX = (char.col * 4 + dirCol) * spriteSheet.tileSize;
+        // Calculate source position: each character row has 4 sprites (one per direction)
+        const sourceX = dirCol * spriteSheet.tileSize;
         const sourceY = char.row * spriteSheet.tileSize;
 
         ctx.save();
