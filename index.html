@@ -84,74 +84,21 @@
   </head>
   <body>
     <div id="gameContainer">
-      <div
-        style="
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin-bottom: 8px;
-          gap: 12px;
-        "
-      >
-        <div class="game-title" style="color: #dc143c; margin: 0">
-          TAKARA.AI RESEARCH LAB
-        </div>
-        <img
-          src="https://takara.ai/images/logo-24/TakaraAi.svg"
-          width="50"
-          alt="Takara.ai Logo"
-          style="filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5))"
-        />
+      <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 8px; gap: 12px;">
+        <div class="game-title" style="color: #dc143c; margin: 0">TAKARA.AI RESEARCH LAB</div>
+        <img src="https://takara.ai/images/logo-24/TakaraAi.svg" width="50" alt="Takara.ai Logo" style="filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5))" />
       </div>
       <canvas id="gameCanvas" width="560" height="420"></canvas>
       <div id="ui">
         <div class="stats">
           <div>🤖 AI: <span id="aiCount">0</span>/∞</div>
           <div>📍 Room: <span id="roomId">0,0</span></div>
-          <div>🌍 Biome: <span id="biome">LAB</span></div>
+          <div>🌍 Biome: <span id="biome">OUTSIDE</span></div>
           <div>👥 NPCs Met: <span id="npcCount">0</span></div>
         </div>
-        <div
-          id="questDisplay"
-          style="
-            margin-top: 8px;
-            padding: 8px;
-            background: rgba(220, 20, 60, 0.1);
-            border-radius: 5px;
-            border: 1px solid #dc143c;
-          "
-        >
-          <div
-            style="
-              color: #dc143c;
-              font-weight: bold;
-              margin-bottom: 4px;
-              font-size: 13px;
-            "
-          >
-            Current Quest:
-          </div>
-          <div
-            id="questTitle"
-            style="color: #ecf0f1; font-size: 13px; margin-bottom: 2px"
-          >
-            Welcome to Takara.ai
-          </div>
-          <div id="questDesc" style="color: #bdc3c7; font-size: 11px">
-            Find your first AI architecture!
-          </div>
-        </div>
       </div>
-      <div
-        style="
-          text-align: center;
-          color: #ecf0f1;
-          margin-top: 8px;
-          font-size: 13px;
-        "
-      >
-        ⌨️ WASD/Arrows to move • ⚡ SPACE to interact • 🔍 Explore Takara.ai
-        Research Lab!
+      <div style="text-align: center; color: #ecf0f1; margin-top: 8px; font-size: 13px;">
+        ⌨️ WASD/Arrows to move • ⚡ SPACE to interact • 🔍 Explore Takara.ai Research Lab!
       </div>
     </div>
     <div id="dialogue"></div>
@@ -161,12 +108,11 @@
       const ctx = canvas.getContext("2d");
       ctx.imageSmoothingEnabled = false;
 
-      // Sprite system for Hello Kitty characters
+      // Sprite system
       const spriteSheet = {
         image: null,
         loaded: false,
-        tileSize: 32, // Will auto-detect
-        
+        tileSize: 32,
         characters: {
           player: { row: 0, col: 0 },
           'Dr. Takara Mono': { row: 1, col: 0 },
@@ -176,38 +122,29 @@
           'Andrew Ng': { row: 5, col: 0 },
           'Fei-Fei Li': { row: 6, col: 0 }
         },
-        
-        directions: {
-          down: 0,
-          left: 1,
-          right: 2,
-          up: 3
-        }
+        directions: { down: 0, left: 1, right: 2, up: 3 }
       };
 
-      // Load sprite sheet
       function loadSpriteSheet() {
         spriteSheet.image = new Image();
         spriteSheet.image.onload = function() {
           const charactersPerRow = 8;
           spriteSheet.tileSize = spriteSheet.image.width / (charactersPerRow * 4);
-          
-          console.log(`Sprite sheet loaded! Detected tile size: ${spriteSheet.tileSize}x${spriteSheet.tileSize}`);
+          console.log(`Sprite sheet loaded! Tile size: ${spriteSheet.tileSize}x${spriteSheet.tileSize}`);
           spriteSheet.loaded = true;
         };
         spriteSheet.image.onerror = function() {
-          console.error('Failed to load sprite sheet - using fallback pixel art');
+          console.error('Failed to load sprite sheet - using fallback');
         };
         spriteSheet.image.src = 'hello kitty main character.png';
       }
 
-      // Draw sprite from sheet
       function drawSprite(characterName, direction, x, y) {
         if (!spriteSheet.loaded) return false;
-
+        
         const char = spriteSheet.characters[characterName];
         if (!char) return false;
-
+        
         const dirCol = spriteSheet.directions[direction];
         if (dirCol === undefined) return false;
 
@@ -216,13 +153,11 @@
 
         ctx.save();
         ctx.translate(x, y);
-        
         ctx.drawImage(
           spriteSheet.image,
           sourceX, sourceY, spriteSheet.tileSize, spriteSheet.tileSize,
           -spriteSheet.tileSize/2, -spriteSheet.tileSize/2, spriteSheet.tileSize, spriteSheet.tileSize
         );
-        
         ctx.restore();
         return true;
       }
@@ -230,24 +165,8 @@
       // Constants
       const TILE_SIZE = 32;
       const ROOM_SIZE = 15;
-      const TILE_TYPES = {
-        FLOOR: 0,
-        WALL: 1,
-        GLASS: 2,
-        STAIRS: 3,
-        LAB_ENTRANCE: 4,
-        DATACENTER_ENTRANCE: 5,
-        MAIN_ENTRANCE: 6,
-      };
-
-      const WALKABLE_TILES = new Set([
-        TILE_TYPES.FLOOR,
-        TILE_TYPES.STAIRS,
-        TILE_TYPES.LAB_ENTRANCE,
-        TILE_TYPES.DATACENTER_ENTRANCE,
-        TILE_TYPES.MAIN_ENTRANCE,
-      ]);
-
+      const TILE_TYPES = { FLOOR: 0, WALL: 1, GLASS: 2, LAB_ENTRANCE: 4 };
+      const WALKABLE_TILES = new Set([TILE_TYPES.FLOOR, TILE_TYPES.LAB_ENTRANCE]);
       const BIOMES = {
         OUTSIDE: { minY: 1, maxY: 999, fogRadius: 12 },
         LAB: { minY: 0, maxY: 0, fogRadius: 8 },
@@ -260,35 +179,27 @@
         return "DATACENTER";
       }
 
-      // AI Types with rarity
+      // AI Types
       const AI_TYPES = [
-        {name: "Perceptron", color: "#95a5a6", desc: "The foundation of neural networks", rarity: "common", year: 1957},
+        {name: "Perceptron", color: "#95a5a6", desc: "Foundation of neural networks", rarity: "common", year: 1957},
         {name: "CNN", color: "#2ecc71", desc: "Sees patterns in images", rarity: "common", year: 1989},
         {name: "RNN", color: "#e74c3c", desc: "Remembers sequential data", rarity: "common", year: 1990},
         {name: "LSTM", color: "#f39c12", desc: "Long-term memory master", rarity: "uncommon", year: 1997},
-        {name: "ResNet", color: "#c0392b", desc: "Skip connections revolution", rarity: "uncommon", year: 2015},
         {name: "Transformer", color: "#3498db", desc: "Attention is all you need!", rarity: "rare", year: 2017},
-        {name: "GPT", color: "#e67e22", desc: "Generative language model", rarity: "rare", year: 2018},
         {name: "GPT-4", color: "#ffd700", desc: "Multimodal AI breakthrough", rarity: "legendary", year: 2023},
       ];
 
-      const RARITY_RATES = {
-        common: 0.55,
-        uncommon: 0.25,
-        rare: 0.12,
-        epic: 0.06,
-        legendary: 0.02,
-      };
+      const RARITY_RATES = { common: 0.6, uncommon: 0.25, rare: 0.12, epic: 0.02, legendary: 0.01 };
 
       // NPCs
       const NPC_TYPES = [
         {
           name: "Dr. Takara Mono",
           dialogue: [
-            "Hmph! You're the new researcher? About time someone showed up.",
+            "You're the new researcher? About time!",
             "This facility contains the most important AI architectures in history.",
             "Your mission: collect these architectures and learn from the masters.",
-            "Don't waste my time - get to work! The lab entrance is behind me.",
+            "The lab entrance is behind me. Get to work!"
           ],
           isStoryNPC: true,
         },
@@ -297,7 +208,7 @@
           dialogue: [
             "I'm the Godfather of Deep Learning!",
             "Backpropagation changed everything!",
-            "Neural networks were once considered dead ends.",
+            "Neural networks were once considered dead ends."
           ],
         },
         {
@@ -305,31 +216,23 @@
           dialogue: [
             "CNNs are inspired by the visual cortex!",
             "I pioneered convolutional networks.",
-            "Computer vision was transformed by hierarchical learning.",
+            "Computer vision was transformed by hierarchical learning."
           ],
         },
       ];
 
       // Game state
       const game = {
-        player: {
-          x: 7,
-          y: 10,
-          facing: "down",
-          animFrame: 0,
-          roomX: 0,
-          roomY: 1,
-        },
+        player: { x: 7, y: 10, facing: "down", animFrame: 0, roomX: 0, roomY: 1 },
         collectedAI: new Set(),
         metNPCs: new Set(),
-        visitedRooms: new Set(["0,1"]),
         rooms: new Map(),
         particles: [],
         lastTime: 0,
         deltaTime: 0,
       };
 
-      // Room generation
+      // Utility functions
       function hashCode(str) {
         let hash = 0;
         for (let i = 0; i < str.length; i++) {
@@ -344,6 +247,7 @@
         return x - Math.floor(x);
       }
 
+      // Room class
       class Room {
         constructor(roomX, roomY) {
           this.roomX = roomX;
@@ -356,66 +260,57 @@
         }
 
         generate() {
-          // Initialize tiles
+          // Initialize all tiles as floor
           for (let y = 0; y < ROOM_SIZE; y++) {
             this.tiles[y] = [];
             for (let x = 0; x < ROOM_SIZE; x++) {
-              this.tiles[y][x] = 0;
+              this.tiles[y][x] = TILE_TYPES.FLOOR;
             }
           }
 
-          // Generate basic room structure
-          this.generateBiomeStructure();
+          this.generateStructure();
           this.spawnEntities();
         }
 
-        generateBiomeStructure() {
-          // Starting area
+        generateStructure() {
+          // Starting area (Dr. Takara's office)
           if (this.roomX === 0 && this.roomY === 1) {
-            this.createStartingArea();
+            // Office building
+            for (let x = 5; x < 10; x++) {
+              for (let y = 2; y < 6; y++) {
+                if (x === 5 || x === 9 || y === 2 || y === 5) {
+                  this.tiles[y][x] = TILE_TYPES.WALL;
+                }
+              }
+            }
+            // Glass entrance
+            this.tiles[5][7] = TILE_TYPES.GLASS;
+            // Lab entrance
+            this.tiles[8][7] = TILE_TYPES.LAB_ENTRANCE;
+            
+            // Decorative trees
+            this.tiles[2][2] = TILE_TYPES.WALL;
+            this.tiles[2][12] = TILE_TYPES.WALL;
+            this.tiles[12][2] = TILE_TYPES.WALL;
+            this.tiles[12][12] = TILE_TYPES.WALL;
             return;
           }
 
-          // Random obstacles
-          const numObstacles = Math.floor(seededRandom(this.seed) * 5) + 2;
+          // Random obstacles for other rooms
+          const numObstacles = Math.floor(seededRandom(this.seed) * 3) + 1;
           for (let i = 0; i < numObstacles; i++) {
-            const x = Math.floor(seededRandom(this.seed + i * 100) * ROOM_SIZE);
-            const y = Math.floor(seededRandom(this.seed + i * 200) * ROOM_SIZE);
-            if (x > 2 && x < ROOM_SIZE - 2 && y > 2 && y < ROOM_SIZE - 2) {
-              this.tiles[y][x] = 1;
-            }
+            const x = 3 + Math.floor(seededRandom(this.seed + i * 100) * (ROOM_SIZE - 6));
+            const y = 3 + Math.floor(seededRandom(this.seed + i * 200) * (ROOM_SIZE - 6));
+            this.tiles[y][x] = TILE_TYPES.WALL;
           }
 
           // Ensure door connectivity
           const doorX = Math.floor(ROOM_SIZE / 2);
           const doorY = Math.floor(ROOM_SIZE / 2);
-          this.tiles[0][doorX] = 0;
-          this.tiles[ROOM_SIZE - 1][doorX] = 0;
-          this.tiles[doorY][0] = 0;
-          this.tiles[doorY][ROOM_SIZE - 1] = 0;
-        }
-
-        createStartingArea() {
-          // Dr. Takara's office area
-          for (let x = 5; x < 10; x++) {
-            for (let y = 2; y < 6; y++) {
-              if (x === 5 || x === 9 || y === 2 || y === 5) {
-                this.tiles[y][x] = TILE_TYPES.WALL;
-              }
-            }
-          }
-          
-          // Glass entrance
-          this.tiles[5][7] = TILE_TYPES.GLASS;
-          
-          // Lab entrance
-          this.tiles[8][7] = TILE_TYPES.LAB_ENTRANCE;
-          
-          // Decorative trees
-          this.tiles[2][2] = TILE_TYPES.WALL;
-          this.tiles[2][12] = TILE_TYPES.WALL;
-          this.tiles[12][2] = TILE_TYPES.WALL;
-          this.tiles[12][12] = TILE_TYPES.WALL;
+          this.tiles[0][doorX] = TILE_TYPES.FLOOR;
+          this.tiles[ROOM_SIZE - 1][doorX] = TILE_TYPES.FLOOR;
+          this.tiles[doorY][0] = TILE_TYPES.FLOOR;
+          this.tiles[doorY][ROOM_SIZE - 1] = TILE_TYPES.FLOOR;
         }
 
         spawnEntities() {
@@ -445,14 +340,14 @@
           if (seededRandom(this.seed + 2000) > 0.6) {
             let npc;
             if (this.roomX === 0 && this.roomY === 1) {
-              npc = NPC_TYPES.find((n) => n.name === "Dr. Takara Mono");
+              npc = NPC_TYPES.find(n => n.name === "Dr. Takara Mono");
             } else {
-              const regularNPCs = NPC_TYPES.filter((n) => !n.isStoryNPC);
+              const regularNPCs = NPC_TYPES.filter(n => !n.isStoryNPC);
               npc = regularNPCs[Math.floor(seededRandom(this.seed + 6000) * regularNPCs.length)];
             }
 
             let x = 7, y = 7;
-            if (npc.name !== "Dr. Takara Mono") {
+            if (npc && npc.name !== "Dr. Takara Mono") {
               let attempts = 0;
               do {
                 x = Math.floor(seededRandom(this.seed + 7000 + attempts) * ROOM_SIZE);
@@ -461,12 +356,14 @@
               } while (!this.isValidSpawnPosition(x, y) && attempts < 50);
             }
 
-            this.entities.push({
-              type: "npc",
-              x, y,
-              data: npc,
-              dialogueIndex: 0,
-            });
+            if (npc) {
+              this.entities.push({
+                type: "npc",
+                x, y,
+                data: npc,
+                dialogueIndex: 0,
+              });
+            }
           }
         }
 
@@ -477,18 +374,19 @@
           for (const rarity of ["legendary", "epic", "rare", "uncommon", "common"]) {
             cumulativeRate += RARITY_RATES[rarity];
             if (roll <= cumulativeRate) {
-              const aiOfRarity = AI_TYPES.filter((ai) => ai.rarity === rarity);
-              return aiOfRarity[Math.floor(seededRandom(seed + 100) * aiOfRarity.length)];
+              const aiOfRarity = AI_TYPES.filter(ai => ai.rarity === rarity);
+              if (aiOfRarity.length > 0) {
+                return aiOfRarity[Math.floor(seededRandom(seed + 100) * aiOfRarity.length)];
+              }
             }
           }
-
-          // Fallback
-          return AI_TYPES[0];
+          return AI_TYPES[0]; // Fallback
         }
 
         isValidSpawnPosition(x, y) {
-          return WALKABLE_TILES.has(this.tiles[y][x]) && 
-                 !this.entities.some(e => e.x === x && e.y === y);
+          if (x < 0 || x >= ROOM_SIZE || y < 0 || y >= ROOM_SIZE) return false;
+          if (!WALKABLE_TILES.has(this.tiles[y][x])) return false;
+          return !this.entities.some(e => e.x === x && e.y === y);
         }
       }
 
@@ -500,7 +398,7 @@
         return game.rooms.get(key);
       }
 
-      // Input
+      // Input handling
       const keys = {};
       document.addEventListener("keydown", (e) => {
         keys[e.key.toLowerCase()] = true;
@@ -529,20 +427,14 @@
               game.collectedAI.add(entity.id);
               
               const rarityEmoji = {
-                common: "⚪",
-                uncommon: "🟢", 
-                rare: "🔵",
-                epic: "🟣",
-                legendary: "🟡",
+                common: "⚪", uncommon: "🟢", rare: "🔵", epic: "🟣", legendary: "🟡"
               };
               
               showDialogue(
-                `${rarityEmoji[entity.data.rarity]} [${entity.data.rarity.toUpperCase()}] ${
-                  entity.data.name
-                } (${entity.data.year}) - ${entity.data.desc}`
+                `${rarityEmoji[entity.data.rarity]} [${entity.data.rarity.toUpperCase()}] ${entity.data.name} (${entity.data.year}) - ${entity.data.desc}`
               );
 
-              // Particles
+              // Add particles
               for (let i = 0; i < 8; i++) {
                 game.particles.push({
                   x: entity.x * TILE_SIZE + TILE_SIZE / 2,
@@ -590,7 +482,7 @@
         document.getElementById("npcCount").textContent = game.metNPCs.size;
       }
 
-      // Update
+      // Update game state
       function update(deltaTime) {
         const player = game.player;
         const speed = 4.0;
@@ -667,27 +559,28 @@
         });
       }
 
-      // Draw character functions
+      // Character drawing functions
       function drawJordan(x, y, facing, frame) {
-        // Try sprite first
-        if (drawSprite('player', facing, x, y)) {
-          return;
-        }
+        if (drawSprite('player', facing, x, y)) return;
         
         // Fallback pixel art
         const s = 2;
         ctx.save();
         ctx.translate(x, y);
         
+        // Head
         ctx.fillStyle = "#fdbcb4";
         ctx.fillRect(-4 * s, -6 * s, 8 * s, 6 * s);
         
+        // Hair
         ctx.fillStyle = "#f4e04d";
         ctx.fillRect(-4 * s, -5 * s, 8 * s, 2 * s);
         
+        // Body
         ctx.fillStyle = "#34495e";
         ctx.fillRect(-4 * s, 0, 8 * s, 8 * s);
         
+        // Legs
         ctx.fillStyle = "#2980b9";
         ctx.fillRect(-3 * s, 8 * s, 6 * s, 4 * s);
         
@@ -695,7 +588,6 @@
       }
 
       function drawNPC(x, y, facing, frame, npcData) {
-        // Try sprite first
         if (drawSprite(npcData.name, facing, x, y)) {
           ctx.font = "10px monospace";
           ctx.fillStyle = "#fff";
@@ -709,19 +601,28 @@
         ctx.save();
         ctx.translate(x, y);
         
+        // Head
         ctx.fillStyle = "#fdbcb4";
         ctx.fillRect(-4 * s, -6 * s, 8 * s, 6 * s);
         
+        // Hair
         ctx.fillStyle = "#8B4513";
         ctx.fillRect(-5 * s, -7 * s, 10 * s, 3 * s);
         
+        // Lab coat
         ctx.fillStyle = "#fff";
         ctx.fillRect(-4 * s, 0, 8 * s, 8 * s);
         
         ctx.restore();
+        
+        // Name label
+        ctx.font = "10px monospace";
+        ctx.fillStyle = "#fff";
+        ctx.textAlign = "center";
+        ctx.fillText(npcData.name.split(" ")[1], x, y - 20);
       }
 
-      // Simple tile drawing
+      // Tile drawing
       function drawFloorTile(x, y, biome) {
         switch (biome) {
           case "OUTSIDE":
@@ -750,7 +651,7 @@
         ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
       }
 
-      // Render
+      // Render function
       function render() {
         ctx.fillStyle = "#000";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -778,9 +679,16 @@
               } else if (tileType === TILE_TYPES.GLASS) {
                 ctx.fillStyle = "#e6f3ff";
                 ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
+                ctx.strokeStyle = "#b3d9ff";
+                ctx.lineWidth = 2;
+                ctx.strokeRect(screenX + 2, screenY + 2, TILE_SIZE - 4, TILE_SIZE - 4);
               } else if (tileType === TILE_TYPES.LAB_ENTRANCE) {
                 ctx.fillStyle = "#DC143C";
                 ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
+                ctx.fillStyle = "#fff";
+                ctx.font = "16px Arial";
+                ctx.textAlign = "center";
+                ctx.fillText("🔬", screenX + TILE_SIZE/2, screenY + TILE_SIZE/2 + 6);
               }
             }
           }
@@ -877,7 +785,7 @@
         requestAnimationFrame(gameLoop);
       }
 
-      // Initialize
+      // Initialize and start game
       loadSpriteSheet();
       updateUI();
       showDialogue("Welcome to Takara.ai Research Campus! Speak with Dr. Takara Mono to begin your mission.");
