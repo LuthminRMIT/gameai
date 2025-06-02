@@ -108,50 +108,39 @@
       const ctx = canvas.getContext("2d");
       ctx.imageSmoothingEnabled = false;
 
-      // Sprite system - corrected for proper sprite sheet layout
+      // Sprite system for vertical Hello Kitty sprite sheet
       const spriteSheet = {
         image: null,
         loaded: false,
-        tileSize: 24, // Most RPG sprite sheets use 24x24 or 32x32
+        tileSize: 32,
         
-        // Each character has 4 directions in a row: down, left, right, up
+        // Characters mapped to rows in your sprite sheet
         characters: {
-          player: { row: 0 },           // First row
-          'Dr. Takara Mono': { row: 1 }, // Second row  
-          'Geoffrey Hinton': { row: 2 }, // Third row
-          'Yann LeCun': { row: 3 },     // Fourth row
-          'Yoshua Bengio': { row: 4 },  // Fifth row
-          'Andrew Ng': { row: 5 },      // Sixth row
-          'Fei-Fei Li': { row: 6 }      // Seventh row
+          player: { row: 2 },           // Use row 2 (white Hello Kitty)
+          'Dr. Takara Mono': { row: 0 }, // Use row 0 (red Hello Kitty)
+          'Geoffrey Hinton': { row: 1 }, // Use row 1 (yellow Hello Kitty)
+          'Yann LeCun': { row: 3 },     // Use row 3 (green Hello Kitty)
+          'Yoshua Bengio': { row: 4 },  // Use row 4 (blue Hello Kitty)
+          'Andrew Ng': { row: 5 },      // Use row 5 (purple Hello Kitty)
+          'Fei-Fei Li': { row: 6 }      // Use row 6 (pink Hello Kitty)
         },
         
-        // Direction order in sprite sheets: down, left, right, up
+        // Directions: down, left, right, up (standard RPG layout)
         directions: { down: 0, left: 1, right: 2, up: 3 }
       };
 
       function loadSpriteSheet() {
         spriteSheet.image = new Image();
         spriteSheet.image.onload = function() {
-          // Auto-detect tile size - assume 8 characters across, 4 directions each
-          const imageWidth = spriteSheet.image.width;
-          const imageHeight = spriteSheet.image.height;
+          // Your sprite sheet appears to be 4 sprites wide, multiple rows tall
+          const spritesPerRow = 4;
+          spriteSheet.tileSize = spriteSheet.image.width / spritesPerRow;
           
-          // Common sprite sheet layouts: 8 characters × 4 directions = 32 sprites wide
-          spriteSheet.tileSize = Math.floor(imageWidth / 32);
-          
-          // If that doesn't work, try other common layouts
-          if (spriteSheet.tileSize < 16) {
-            spriteSheet.tileSize = Math.floor(imageWidth / 16); // 4 characters × 4 directions
-          }
-          if (spriteSheet.tileSize < 16) {
-            spriteSheet.tileSize = Math.floor(imageWidth / 12); // 3 characters × 4 directions
-          }
-          
-          console.log(`Sprite sheet loaded! Image: ${imageWidth}x${imageHeight}, Tile size: ${spriteSheet.tileSize}x${spriteSheet.tileSize}`);
+          console.log(`Hello Kitty sprites loaded! Tile size: ${spriteSheet.tileSize}x${spriteSheet.tileSize}`);
           spriteSheet.loaded = true;
         };
         spriteSheet.image.onerror = function() {
-          console.error('Failed to load sprite sheet - using fallback');
+          console.error('Failed to load Hello Kitty sprites - using fallback');
         };
         spriteSheet.image.src = 'hello kitty main character.png';
       }
@@ -165,7 +154,7 @@
         const dirCol = spriteSheet.directions[direction];
         if (dirCol === undefined) return false;
 
-        // Calculate source position: each character row has 4 sprites (one per direction)
+        // Extract from grid: column = direction, row = character
         const sourceX = dirCol * spriteSheet.tileSize;
         const sourceY = char.row * spriteSheet.tileSize;
 
